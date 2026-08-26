@@ -1,9 +1,5 @@
-#![allow(unused_imports)]
-#![allow(redundant_semicolons)]
+pub mod kern;
 
-pub mod global;
-
-mod bayern;
+pub mod bayern;
 
 pub use bayern::Bayern;
-

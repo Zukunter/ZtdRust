@@ -4,20 +4,25 @@ use std::{
     }
 };
 
-pub struct Bayern {
+use crate::kern::*;
+
+
+pub struct BayernOrUnwrapped<T> {
     pub code: i32,
     pub msg: Option<String>,
-    pub fnc: Option<Box<dyn FnOnce()>>
+    pub fnc: Option<Box<dyn FnOnce()>>,
+    unwrapped: Option<T>
 }
 
-impl Bayern {
+impl<T> BayernOrUnwrapped<T> {
 
     // Starter
-    pub fn new() -> Self {
+    pub fn new(option: Option<T>) -> Self {
         Self {
             code: 0,
             msg: None,
-            fnc: None
+            fnc: None,
+            unwrapped: option
         }
     }
 
@@ -75,7 +80,12 @@ impl Bayern {
     return mod_bayern ; }
 
     // Ender 
-    pub fn bye(self) -> ! {
+    pub fn bye(self) -> T {
+
+        if let Some(value) = self.unwrapped {
+            return value;
+        }
+
         let code = self.code;
 
         if let Some(fnc) = self.fnc {
@@ -89,8 +99,37 @@ impl Bayern {
         exit(code);
     }
 
-    pub fn exit(self, code: i32) -> ! {
+    pub fn exit(self, code: i32) -> T {
         let new_bayern = self.code(code);
-        new_bayern.bye();
+        new_bayern.bye()
     }
 }
+
+pub trait UnwrapOrBye<T> {
+    fn unwrap_or_bye(self) -> BayernOrUnwrapped<T>;
+}
+
+impl<T> UnwrapOrBye<T> for Option<T> {
+    fn unwrap_or_bye(self) -> BayernOrUnwrapped<T> {
+        BayernOrUnwrapped::new(self)
+    }
+}
+
+impl<T, E> UnwrapOrBye<T> for Result<T, E> {
+    fn unwrap_or_bye(self) -> BayernOrUnwrapped<T> {
+        match self {
+            Ok(val) => BayernOrUnwrapped::new(Some(val)),
+            Err(_) => BayernOrUnwrapped::new(None)
+        }
+    }
+}
+
+impl <T, E> UnwrapOrBye<T> for Possible<T, E> {
+    fn unwrap_or_bye(self) -> BayernOrUnwrapped<T> {
+        match self {
+            Possible::Okay(val) => BayernOrUnwrapped::new(Some(val)),
+            _ => BayernOrUnwrapped::new(None)
+        }
+    }
+}
+

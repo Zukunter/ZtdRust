@@ -11,13 +11,13 @@ pub fn bye_fnc<AnyFunction>(code: i32, fnc_to_exec: AnyFunction) -> !
 #[macro_export]
 macro_rules! bye_fnc {
     ($code:expr, $fnc_to_exec:expr) => {
-        $crate::bayerns::fnc::bye_fnc($code, $fnc_to_exec);
+        $crate::bayern::bye_fnc($code, $fnc_to_exec);
     };
     ($code:expr,$fnc_to_exec:expr) => {
-        $crate::bayerns::fnc::bye_fnc($code, $fnc_to_exec);
+        $crate::bayern::bye_fnc($code, $fnc_to_exec);
     };
     ($fnc_to_exec:expr) => {
-        $crate::bayerns::fnc::bye_fnc(0, $fnc_to_exec);
+        $crate::bayern::bye_fnc(0, $fnc_to_exec);
     };
 }
 
