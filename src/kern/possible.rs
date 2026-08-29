@@ -3,14 +3,11 @@
 pub enum Possible<T, E> {
     Okay(T),
     Error(E),
-    Null,
+    Null
 }
 
 impl<T, E> Possible<T, E> {
     pub fn okay(self) -> Option<T>
-// where 
-    //     T: [const] Destruct,
-    //     E: [const] Destruct
     {
         match self {
             Self::Okay(val) => Some(val),
@@ -19,9 +16,6 @@ impl<T, E> Possible<T, E> {
     }
 
     pub fn error(self) -> Option<E>
-// where 
-    //     T: [const] Destruct,
-    //     E: [const] Destruct
     {
         match self {
             Self::Error(err) => Some(err),
@@ -65,7 +59,6 @@ impl<T, E> Possible<T, E> {
             _ => false
         }
     }
-
 
     pub fn map<U, F>(self, f: F) -> Possible<U, E>
     where

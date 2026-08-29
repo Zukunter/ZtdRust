@@ -6,130 +6,204 @@ use std::{
 
 use crate::kern::*;
 
-
-pub struct BayernOrUnwrapped<T> {
+pub struct BayernOr<T> {
     pub code: i32,
-    pub msg: Option<String>,
-    pub fnc: Option<Box<dyn FnOnce()>>,
+    pub msg: String,
+    pub fncs: Vec<Box<dyn FnOnce()>>,
     unwrapped: Option<T>
 }
 
-impl<T> BayernOrUnwrapped<T> {
+impl<T> BayernOr<T> {
 
-    // Starter
-    pub fn new(option: Option<T>) -> Self {
-        Self {
-            code: 0,
-            msg: None,
-            fnc: None,
-            unwrapped: option
+    /* Initializers */
+
+        pub fn new(option: Option<T>) -> Self {
+            Self {
+                code: 0,
+                msg: String::new(),
+                fncs: Vec::new(),
+                unwrapped: option
+            }
         }
-    }
 
-    // Modifiers
-    pub fn code(mut self, code: i32) -> Self {
-        self.code = code;
-    return self ; }
+        pub fn default(option: Option<T>) -> Self {
+            Self::new(option)
+        }
+
+    /* Chainers */
+
+        pub fn code(&mut self, code: i32) -> &mut Self {
+             self.code = code;
+        self }
     
-    pub fn fnc<F>(mut self, fnc: F) -> Self 
-        where 
-            F: FnOnce() + 'static 
-    {
-        self.fnc = Some(Box::new(fnc));
-    return self ; }
+        pub fn fnc<F>(&mut self, fnc: F) -> &mut Self 
+            where 
+                F: FnOnce() + 'static
+        {
+            self.fncs.push(Box::new(fnc));
+        self }
+
+        pub fn msg<AsStr>(&mut self, msg: AsStr) -> &mut Self
+            where
+                AsStr: AsRef<str>
+        {
+            let msg_ref = msg.as_ref();
+
+            self.msg
+                .push_str(msg_ref);
+
+        self }
+
+        /* Adders */
+
+            fn msg_plus<AsStr>(&mut self, msg: AsStr, tail: &str) -> &mut Self 
+                where 
+                    AsStr: AsRef<str>
+            {
+                self.msg(msg);
+                self.msg(tail);
+            self }
+
+            pub fn msgd<AsStr>(&mut self, msg: AsStr) -> &mut Self 
+                where 
+                    AsStr: AsRef<str>
+            {
+                self.msg_plus(msg, ".");
+            self }
+
+            pub fn msgln<AsStr>(&mut self, msg: AsStr) -> &mut Self 
+                where 
+                    AsStr: AsRef<str>
+            {
+                self.msg_plus(msg, "\n");
+            self }
+
+            pub fn msgdln<AsStr>(&mut self, msg: AsStr) -> &mut Self 
+                where 
+                    AsStr: AsRef<str>
+            {
+                self.msg_plus(msg, ".\n");
+            self }
+
+    /* Erasers */
     
-    pub fn msg<AsStr>(mut self, msg: AsStr) -> Self 
-        where 
-            AsStr: AsRef<str>
-    {
-        let new_msg_string = msg.as_ref().to_owned();
+        pub fn erase_code(&mut self) -> &mut Self {
+            self.code(0);
+        self }
 
-        self.msg = Some(new_msg_string);
+        pub fn erase_msg(&mut self) -> &mut Self {
+            self.msg = String::new();
+        self }
 
-    return self ; }
+        pub fn erase_fnc(&mut self) -> &mut Self {
+            self.fncs.clear();
+        self }
 
-    // Additional Messages
-    pub fn msg_d<AsStr>(self, msg: AsStr) -> Self 
-        where 
-            AsStr: AsRef<str>
-    {
-        let mut new_msg_with_ln = msg.as_ref().to_owned();
-        new_msg_with_ln.push('.');
-        
-        let mod_bayern = self.msg(new_msg_with_ln); 
-    return mod_bayern ; }
+    /* Overwriters */
+
+        pub fn over_fnc<F>(&mut self, fnc: F) -> &mut Self 
+            where 
+                F: FnOnce() + 'static
+        {
+            self.erase_fnc();
+            self.fnc(fnc);
+        self }
+
+        pub fn over_msg<AsStr>(&mut self, msg: AsStr) -> &mut Self 
+            where 
+                AsStr: AsRef<str>
+        {
+            self.erase_msg();
+            self.msg(msg);
+        self }
+
+        /* Adders */
+
+            fn over_msg_plus<AsStr>(&mut self, msg: AsStr, tail: &str) -> &mut Self 
+                where 
+                    AsStr: AsRef<str>
+            {
+                self.over_msg(msg);
+                self.msg(tail);
+            self }
+
+            pub fn over_msgd<AsStr>(&mut self, msg: AsStr) -> &mut Self 
+                where 
+                    AsStr: AsRef<str>
+            {
+                self.over_msg_plus(msg, ".");
+            self }
+
+            pub fn over_msgln<AsStr>(&mut self, msg: AsStr) -> &mut Self 
+                where 
+                    AsStr: AsRef<str>
+            {
+                self.over_msg_plus(msg, "\n");
+            self }
+
+            pub fn over_msgdln<AsStr>(&mut self, msg: AsStr) -> &mut Self 
+                where 
+                    AsStr: AsRef<str>
+            {
+                self.over_msg_plus(msg, ".\n");
+            self }
+
+    /* Exiters */
     
-    pub fn msg_ln<AsStr>(self, msg: AsStr) -> Self 
-        where 
-            AsStr: AsRef<str>
-    {
-        let mut new_msg_with_ln = msg.as_ref().to_owned();
-        new_msg_with_ln.push('\n');
+        pub fn bye(self) -> T {
+ 
+            /* Return if theres something */ 
+            if let Some(value) = self.unwrapped {
+                return value;
+            }
+
+            let fncs = self.fncs;
+            for fnc in fncs {
+                let _ = fnc();
+            }
+
+            let msg = self.msg;
+            eprint!("{msg}");
+
+
+            let code = self.code;
+            exit(code);
+        }
         
-        let mod_bayern = self.msg(new_msg_with_ln); 
-    return mod_bayern ; }
+        pub fn exit(mut self, code: i32) -> T {
+            self.code(code);
+            let val = self.bye();
+        val }
 
-    pub fn msg_dln<AsStr>(self, msg: AsStr) -> Self 
-        where 
-            AsStr: AsRef<str>
-    {
-        let mut new_msg_with_ln = msg.as_ref().to_owned();
-        new_msg_with_ln.push_str(".\n");
-        
-        let mod_bayern = self.msg(new_msg_with_ln); 
-    return mod_bayern ; }
-
-    // Ender 
-    pub fn bye(self) -> T {
-
-        if let Some(value) = self.unwrapped {
-            return value;
-        }
-
-        let code = self.code;
-
-        if let Some(fnc) = self.fnc {
-            let _ = fnc();
-        }
-
-        if let Some(msg) = self.msg {
-            eprint!("{}", msg);
-        }
-
-        exit(code);
-    }
-
-    pub fn exit(self, code: i32) -> T {
-        let new_bayern = self.code(code);
-        new_bayern.bye()
-    }
 }
 
 pub trait UnwrapOrBye<T> {
-    fn unwrap_or_bye(self) -> BayernOrUnwrapped<T>;
+    fn unwrap_or_bye(self) -> BayernOr<T>;
 }
 
 impl<T> UnwrapOrBye<T> for Option<T> {
-    fn unwrap_or_bye(self) -> BayernOrUnwrapped<T> {
-        BayernOrUnwrapped::new(self)
+    fn unwrap_or_bye(self) -> BayernOr<T> {
+        BayernOr::new(self)
     }
 }
 
 impl<T, E> UnwrapOrBye<T> for Result<T, E> {
-    fn unwrap_or_bye(self) -> BayernOrUnwrapped<T> {
+    fn unwrap_or_bye(self) -> BayernOr<T> {
         match self {
-            Ok(val) => BayernOrUnwrapped::new(Some(val)),
-            Err(_) => BayernOrUnwrapped::new(None)
+            Ok(val) => BayernOr::new(Some(val)),
+            Err(_) => BayernOr::new(None)
         }
     }
 }
 
 impl <T, E> UnwrapOrBye<T> for Possible<T, E> {
-    fn unwrap_or_bye(self) -> BayernOrUnwrapped<T> {
+    fn unwrap_or_bye(self) -> BayernOr<T> {
         match self {
-            Possible::Okay(val) => BayernOrUnwrapped::new(Some(val)),
-            _ => BayernOrUnwrapped::new(None)
+            Possible::Okay(val) => BayernOr::new(Some(val)),
+            _ => BayernOr::new(None)
         }
     }
 }
+
+
 

@@ -11,7 +11,6 @@ pub use possible::{
 
 pub use crate::bayern::{
     UnwrapOrBye,
-    Bayern
 };
 pub use crate::{
     bye_expl,
