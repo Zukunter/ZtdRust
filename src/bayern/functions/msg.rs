@@ -1,8 +1,16 @@
-use std::process::exit;
+use std::{
+    process::{
+        exit
+    }
+};
 
 #[inline]
-pub fn bye_msg(code: i32, msg: &str) -> ! {
-    eprint!("{}", msg);
+pub fn bye_msg<AsStr>(code: i32, msg: AsStr) -> ! 
+where 
+    AsStr: AsRef<str>
+{
+    let msg_ref = msg.as_ref();
+    eprint!("{}", msg_ref);
     exit(code);
 }
 

@@ -1,8 +1,13 @@
-use std::process::exit;
+use std::{
+    process::{
+        exit
+    }
+};
 
 #[inline]
-pub fn bye_fnc<AnyFunction>(code: i32, fnc_to_exec: AnyFunction) -> ! 
-    where AnyFunction: FnOnce()
+pub fn bye_fnc<F>(code: i32, fnc_to_exec: F) -> ! 
+where 
+    F: FnOnce()
 {
     let _ = fnc_to_exec();
     exit(code);
@@ -20,4 +25,3 @@ macro_rules! bye_fnc {
         $crate::bayern::bye_fnc(0, $fnc_to_exec);
     };
 }
-

@@ -1,33 +1,32 @@
 use std::{
     process::{
         exit
+    },
+    mem::{
+        take
     }
 };
 
-use crate::kern::*;
-
-pub struct BayernOr<T> {
+pub struct Bayern {
     pub code: i32,
     pub msg: String,
-    pub fncs: Vec<Box<dyn FnOnce()>>,
-    unwrapped: Option<T>
+    pub fncs: Vec<Box<dyn FnOnce()>>
 }
 
-impl<T> BayernOr<T> {
+impl Bayern {
 
     /* Initializers */
 
-        pub fn new(option: Option<T>) -> Self {
+        pub fn new() -> Self {
             Self {
                 code: 0,
                 msg: String::new(),
-                fncs: Vec::new(),
-                unwrapped: option
+                fncs: Vec::new()
             }
         }
 
-        pub fn default(option: Option<T>) -> Self {
-            Self::new(option)
+        pub fn default() -> Self {
+            Self::new()
         }
 
     /* Chainers */
@@ -150,19 +149,14 @@ impl<T> BayernOr<T> {
 
     /* Exiters */
     
-        pub fn bye(self) -> T {
- 
-            /* Return if theres something */ 
-            if let Some(value) = self.unwrapped {
-                return value;
-            }
-
-            let fncs = self.fncs;
+        pub fn bye(&mut self) -> ! {
+            
+            let fncs = take(&mut self.fncs);
             for fnc in fncs {
                 let _ = fnc();
             }
 
-            let msg = self.msg;
+            let msg = &self.msg;
             eprint!("{msg}");
 
 
@@ -170,40 +164,9 @@ impl<T> BayernOr<T> {
             exit(code);
         }
         
-        pub fn exit(mut self, code: i32) -> T {
+        pub fn exit(&mut self, code: i32) -> ! {
             self.code(code);
-            let val = self.bye();
-        val }
-
-}
-
-pub trait UnwrapOrBye<T> {
-    fn unwrap_or_bye(self) -> BayernOr<T>;
-}
-
-impl<T> UnwrapOrBye<T> for Option<T> {
-    fn unwrap_or_bye(self) -> BayernOr<T> {
-        BayernOr::new(self)
-    }
-}
-
-impl<T, E> UnwrapOrBye<T> for Result<T, E> {
-    fn unwrap_or_bye(self) -> BayernOr<T> {
-        match self {
-            Ok(val) => BayernOr::new(Some(val)),
-            Err(_) => BayernOr::new(None)
+            self.bye();
         }
-    }
+
 }
-
-impl <T, E> UnwrapOrBye<T> for Possible<T, E> {
-    fn unwrap_or_bye(self) -> BayernOr<T> {
-        match self {
-            Possible::Okay(val) => BayernOr::new(Some(val)),
-            _ => BayernOr::new(None)
-        }
-    }
-}
-
-
-

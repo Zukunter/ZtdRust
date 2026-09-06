@@ -1,14 +1,22 @@
-use std::process::exit;
+use std::{
+    process::{
+        exit
+    }
+};
 
 #[inline]
-pub fn bye_expl<AnyFunction>(code: i32, fnc_to_exec: AnyFunction, msg: &str) -> ! 
-    where AnyFunction: FnOnce()
+pub fn bye_expl<F, AsStr>(code: i32, fnc: F, msg: AsStr) -> ! 
+where 
+    F: FnOnce(),
+    AsStr: AsRef<str>
 {
-    let _ = fnc_to_exec();
-    eprint!("{}", msg);
+    let _ = fnc();
+
+    let msg_ref = msg.as_ref();
+    eprint!("{}", msg_ref);
+
     exit(code);
 }
-
 
 #[macro_export]
 macro_rules! bye_expl {

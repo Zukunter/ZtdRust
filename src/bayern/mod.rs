@@ -1,11 +1,19 @@
-mod expl;
-mod fnc;
-mod msg;
-mod ipsum;
-mod unwrap_or_bye;
+mod functions; pub use functions::{
+    bye_fnc,
+    bye_expl,
+    bye_msg
+};
 
-pub use expl::bye_expl;
-pub use fnc::bye_fnc;
-pub use msg::bye_msg;
-pub use ipsum::Bayern;
-pub use unwrap_or_bye::UnwrapOrBye;
+mod types; pub use types::{
+    Bayern,
+    BayernOr,
+    BayernRef
+};
+
+mod traits; pub use traits::{
+    UnwrapOrByeOption,
+    UnwrapOrByePossible,
+    UnwrapOrByeResult,
+
+    UnwrapOrBayern
+};

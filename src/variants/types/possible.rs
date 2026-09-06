@@ -70,5 +70,5 @@ impl<T, E> Possible<T, E> {
             Self::Null => Possible::Null,
         }
     }
+} 
 
-}
