@@ -6,9 +6,7 @@ use std::{
         take
     }
 };
-use crate::{
-    Bayern
-};
+use crate::bayern::Bayern;
 
 pub enum BayernRef<'a> {
     Owned(Bayern),
@@ -161,9 +159,9 @@ impl<'a, T> BayernOr<'a, T> {
 
     /* Exiters */
     
-        pub fn bye(mut self) -> T {
+        pub fn bye(&mut self) -> T {
             
-            if let Some(value) = self.option {
+            if let Some(value) = self.option.take() {
                 return value;
             }
 
@@ -187,7 +185,7 @@ impl<'a, T> BayernOr<'a, T> {
             exit(code);     
         }
         
-        pub fn exit(mut self, code: i32) -> T {
+        pub fn exit(&mut self, code: i32) -> T {
             self.code(code);
             let value = self.bye();
         value }

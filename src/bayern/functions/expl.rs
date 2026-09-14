@@ -5,9 +5,9 @@ use std::{
 };
 
 #[inline]
-pub fn bye_expl<F, AsStr>(code: i32, fnc: F, msg: AsStr) -> ! 
+pub fn bye_expl<Fnc, AsStr>(code: i32, fnc: Fnc, msg: AsStr) -> ! 
 where 
-    F: FnOnce(),
+    Fnc: FnOnce(),
     AsStr: AsRef<str>
 {
     let _ = fnc();

@@ -1,10 +1,7 @@
-mod path; 
-
 pub use std::format as f;
 
-pub use path::{
-    PathToString
-};
+pub use crate::vfs::PathToString;
+
 pub use crate::{
     bye_expl,
     bye_fnc,

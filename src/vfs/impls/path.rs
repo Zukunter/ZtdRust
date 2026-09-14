@@ -1,7 +1,5 @@
 use std::{
-    ffi::{
-        OsString
-    }, 
+    ffi::OsString, 
     path::{
         Path, PathBuf
     }
