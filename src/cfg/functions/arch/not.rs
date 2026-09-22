@@ -30,7 +30,7 @@ pub fn not_arm<Fnc, T>(_fnc: Fnc) -> Cfg<T>
 where
     Fnc: FnOnce() -> T
 {
-    #[cfg(not(target_arch = "arm")] {
+    #[cfg(not(target_arch = "arm"))] {
         let t = _fnc();
         Cfg::some(t)
     }
