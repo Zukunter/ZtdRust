@@ -1,33 +1,5 @@
 use crate::cfg::Cfg;
 
-pub fn linux<Fnc, T>(_fnc: Fnc) -> Cfg<T> 
-where 
-    Fnc: FnOnce() -> T
-{
-    #[cfg(target_os = "linux")] {
-        let t = _fnc();
-        Cfg::some(t)
-    }
-    
-    #[cfg(not(target_os = "linux"))] {
-        Cfg::none()
-    }
-}
-
-pub fn windows<Fnc, T>(_fnc: Fnc) -> Cfg<T>
-where 
-    Fnc: FnOnce() -> T 
-{
-    #[cfg(target_os = "windows")] {
-        let t = _fnc();
-        Cfg::some(t)
-    }
-    
-    #[cfg(not(target_os = "windows"))] {
-        Cfg::none()
-    }
-}
-
 pub fn android<Fnc, T>(_fnc: Fnc) -> Cfg<T>
 where
     Fnc: FnOnce() -> T

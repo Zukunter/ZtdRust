@@ -1,3 +1,5 @@
+use crate::cfg::Cfg;
+
 pub fn x86<Fnc, T>(_fnc: Fnc) -> Cfg<T>
 where
     Fnc: FnOnce() -> T

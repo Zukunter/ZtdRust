@@ -1,3 +1,5 @@
+use crate::bayern::Bayern;
+
 pub struct Cfg<T> {
     pub(self) internal: Option<T>
 }
@@ -21,6 +23,16 @@ impl<T> Cfg<T> {
         match self.internal {
             Some(int) => int,
             None => _fnc()
+        }
+    }
+    pub fn otherwisse_bye<Fnc>(self, _fnc: Fnc) -> T
+    where 
+        Fnc: FnOnce(&mut Bayern) -> T
+    {
+        let mut bayern = Bayern::new();
+        match self.internal {
+            Some(int) => int,
+            None => _fnc(&mut bayern)
         }
     }
 
@@ -662,4 +674,58 @@ impl<T> Cfg<T> {
                 return self;
             }   
         }
+    /* Arch */
+        pub fn x86<Fnc>(self, _fnc: Fnc) -> Self
+        where 
+            Fnc: FnOnce() -> T 
+        {
+            #[cfg(target_arch = "x86")] {
+                let t = _fnc();
+                return Self::some(t);
+            }
+
+            #[cfg(not(target_arch = "x86"))] {
+                return self;
+            }   
+        }
+        pub fn x86_64<Fnc>(self, _fnc: Fnc) -> Self
+        where 
+            Fnc: FnOnce() -> T 
+        {
+            #[cfg(target_arch = "x86_64")] {
+                let t = _fnc();
+                return Self::some(t);
+            }
+
+            #[cfg(not(target_arch = "x86_64"))] {
+                return self;
+            }   
+        }
+        pub fn arm<Fnc>(self, _fnc: Fnc) -> Self
+        where 
+            Fnc: FnOnce() -> T 
+        {
+            #[cfg(target_arch = "arm")] {
+                let t = _fnc();
+                return Self::some(t);
+            }
+
+            #[cfg(not(target_arch = "arm"))] {
+                return self;
+            }   
+        }
+        pub fn aarch64<Fnc>(self, _fnc: Fnc) -> Self
+        where 
+            Fnc: FnOnce() -> T 
+        {
+            #[cfg(target_arch = "aarch64")] {
+                let t = _fnc();
+                return Self::some(t);
+            }
+
+            #[cfg(not(target_arch = "aarch64"))] {
+                return self;
+            }   
+        }
+
 }
