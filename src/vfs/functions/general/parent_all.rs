@@ -1,13 +1,7 @@
 use std::{
-    path::{
-        Path
-    },
-    fs::{
-        create_dir_all
-    },
-    io::{
-        Error
-    }
+    path::Path,
+    fs::create_dir_all,
+    io::Error
 };
 
 pub fn create_parent_all<AsPath>(path: AsPath) -> Result<(), Error> 
@@ -17,7 +11,10 @@ where
     let path_ref = path.as_ref();
 
     if let Some(parent_path) = path_ref.parent() {
-        create_dir_all(parent_path)?;
+
+        if !parent_path.exists() || !parent_path.is_dir() {
+            create_dir_all(parent_path)?;
+        }
     }
 
 return Ok(()) ; }

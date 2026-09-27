@@ -5,7 +5,7 @@ use std::{
 };
 use crate::vfs;
 
-pub fn hard_link_all<AsPath1, AsPath2>(link: AsPath1, to: AsPath2) -> Result<(), Error>
+pub fn create_hardlink_all<AsPath1, AsPath2>(link: AsPath1, to: AsPath2) -> Result<(), Error>
 where 
     AsPath1: AsRef<Path>,
     AsPath2: AsRef<Path> 

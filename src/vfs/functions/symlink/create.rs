@@ -1,29 +1,32 @@
 use std::{
     path::Path,
-    io::Error
+    io::Error,
+    os
 };
-#[cfg(unix)]
-    use std::os::unix::fs::symlink;
-#[cfg(windows)]
-    use std::os::windows::fs::symlink_file;
-#[cfg(windows)]
-    use std::os::windows::fs::symlink_dir;
+use crate::{
+    cc::{self, Cfg}
+};
 
-pub fn create_symlink<AsPath1, AsPath2>(link: AsPath1, to: AsPath2, _is_dir: bool) -> Result<(), Error>
+pub fn create_symlink<AsPath1, AsPath2>(from: AsPath1, to: AsPath2, _is_dir: bool) -> Result<(), Error>
 where 
     AsPath1: AsRef<Path>,
     AsPath2: AsRef<Path>
 {
-    let link_ref = link.as_ref();
+    let from_ref = from.as_ref();
     let to_ref = to.as_ref();
-    #[cfg(windows)]
+ 
+    #[cfg(target_os = "windows")] {
         if _is_dir {
-            symlink_dir(to_ref, link_ref)?;
+            os::windows::fs::symlink_dir(from_ref, to_ref)?;
         } else {
-            symlink_file(to_ref, link_ref)?;
+            os::windows::fs::symlink_file(from_ref, to_ref)?;
         }
-    #[cfg(unix)]
-        symlink(to_ref, link_ref)?;
+    }
+
+    #[cfg(unix)] {
+        os::unix::fs::symlink(from_ref, to_ref)?;
+    }
+
     return Ok(());
 }
 
