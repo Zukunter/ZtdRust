@@ -3,9 +3,6 @@ use std::{
     io::Error,
     os
 };
-use crate::{
-    cc::{self, Cfg}
-};
 
 pub fn create_symlink<AsPath1, AsPath2>(from: AsPath1, to: AsPath2, _is_dir: bool) -> Result<(), Error>
 where 
@@ -15,16 +12,16 @@ where
     let from_ref = from.as_ref();
     let to_ref = to.as_ref();
  
-    #[cfg(target_os = "windows")] {
+    #[cfg(windows)] {
         if _is_dir {
-            os::windows::fs::symlink_dir(from_ref, to_ref)?;
+            os::windows::fs::symlink_dir(to_ref, from_ref)?;
         } else {
-            os::windows::fs::symlink_file(from_ref, to_ref)?;
+            os::windows::fs::symlink_file(to_ref, from_ref)?;
         }
     }
 
     #[cfg(unix)] {
-        os::unix::fs::symlink(from_ref, to_ref)?;
+        os::unix::fs::symlink(to_ref, from_ref)?;
     }
 
     return Ok(());

@@ -1,7 +1,9 @@
-use crate::vfs;
 use std::{
     path::Path,
     io::Error
+};
+use crate::{
+    vfs
 };
 
 pub fn create_symlink_all<AsPath1, AsPath2>(link: AsPath1, to: AsPath2, is_dir: bool) -> Result<(), Error>
@@ -13,6 +15,7 @@ where
     let to_ref = to.as_ref();
     vfs::create_parent_all(link_ref)?;
     vfs::create_symlink(link_ref, to_ref, is_dir)?;
+
     Ok(())
 }
 

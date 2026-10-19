@@ -1,28 +1,36 @@
+use crate::vfs;
 use std::{
-    io::Error, 
+    fs,
+    io::{Error, ErrorKind},
     path::Path,
-    fs
-};
-use crate::{
-    vfs
 };
 
 pub fn copy_dir<AsPath1, AsPath2>(from: AsPath1, to: AsPath2) -> Result<(), Error>
-where 
+where
     AsPath1: AsRef<Path>,
-    AsPath2: AsRef<Path>
+    AsPath2: AsRef<Path>,
 {
     let from_ref = from.as_ref();
     let mut to_route = to.as_ref().to_owned();
-    to_route.push(from_ref);
 
+    fs::create_dir(&to_route)?;
+    let to_name = from_ref.file_name().ok_or(Error::new(
+        ErrorKind::InvalidData,
+        format!(
+            "OsString {:?} has no valid path equivalence on this platform",
+            to_route
+        ),
+    ))?;
+    to_route.push(to_name);
     fs::create_dir(&to_route)?;
 
     let entries = fs::read_dir(from_ref)?;
 
     for entry in entries {
         let entry = entry?;
-        vfs::copy_quidquid(entry.path(), &to_route)?;
+        let destination = to_route.join(entry.file_name());
+        vfs::copy_quidquid(entry.path(), &destination)?;
     }
 
-return Ok(()) ; }
+    return Ok(());
+}

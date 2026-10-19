@@ -7,4 +7,3 @@ mod result; pub use result::{
 };
 
 mod possible;
-mod cfg;
